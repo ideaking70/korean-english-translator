@@ -92,7 +92,47 @@ body{
   box-shadow:0 6px 14px rgba(37,42,90,.14);
 }
 .reset-button:hover{background:#ff858c}
+.header-actions{display:flex;align-items:center;gap:10px}
+.site-language{display:flex;align-items:center;background:#ffffff;border:1px solid #d8dbea;border-radius:12px;padding:3px;box-shadow:0 5px 14px rgba(37,42,90,.08)}
+.site-language-button{min-height:34px;padding:0 11px;border:0;border-radius:9px;background:transparent;color:#252a5a;font-weight:700;font-size:12px;cursor:pointer;transition:all .18s ease}
+.site-language-button.active{background:#252a5a;color:#ffffff}
+.site-language-button:hover{background:#eef0f8}
+.site-language-button.active:hover{background:#252a5a}
 .main{padding:30px 34px 26px}
+.input-language-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin:0 0 12px;
+}
+.language-buttons{
+  display:flex;
+  gap:6px;
+  padding:4px;
+  border:1px solid var(--border);
+  border-radius:13px;
+  background:#f8fafb;
+}
+.language-button{
+  min-height:34px;
+  padding:0 13px;
+  border-radius:9px;
+  background:transparent;
+  color:#68717a;
+  font-size:12px;
+  font-weight:800;
+  box-shadow:none;
+}
+.language-button:hover{
+  background:#eef3f6;
+  color:var(--text);
+}
+.language-button.active{
+  background:var(--primary);
+  color:#fff;
+  box-shadow:0 3px 8px rgba(37,42,90,.15);
+}
 .label-row{
   display:flex;
   align-items:center;
@@ -268,6 +308,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
   .subtitle{font-size:12px}
   .header-note{font-size:11px}
   .main{padding:22px 18px 19px}
+  .header-actions{width:100%;justify-content:flex-start;flex-wrap:wrap}
   textarea{min-height:160px;font-size:16px;padding:15px}
   .controls{
     align-items:stretch;
@@ -285,6 +326,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
   body{padding:8px}
   .header{padding:21px 16px}
   .main{padding:19px 14px 17px}
+  .language-button{padding:0 8px;font-size:11px}
   .header-top{gap:10px}
   .brand h1{font-size:22px}
   .subtitle{font-size:11px}
@@ -302,14 +344,20 @@ button:disabled{opacity:.45;cursor:not-allowed}
     <header class="header">
         <div class="header-top">
             <div class="brand">
-                <h1><span class="accent">한영</span> 번역창</h1>
-                <div class="subtitle">한국어 ↔ English · 자연스러운 구어체</div>
-                <div class="header-note">Write naturally, translate easily.</div>
+                <h1 id="siteTitle"><span class="accent">한영</span> 번역창</h1>
+                <div class="subtitle" id="siteSubtitle">한국어 ↔ English · 자연스러운 구어체</div>
+                <div class="header-note" id="siteNote">자연스럽게 쓰고, 편하게 번역하세요.</div>
             </div>
 
-            <button id="reset" type="button" class="reset-button">
-                전체 초기화
-            </button>
+            <div class="header-actions">
+                <div class="site-language" role="group" aria-label="사이트 언어 선택">
+                    <button id="siteKorean" class="site-language-button active" type="button" aria-pressed="true">한국어</button>
+                    <button id="siteEnglish" class="site-language-button" type="button" aria-pressed="false">English</button>
+                </div>
+                <button id="reset" type="button" class="reset-button">
+                    전체 초기화
+                </button>
+            </div>
         </div>
     </header>
 
@@ -318,7 +366,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
 
             <section class="input-box">
                 <div class="label-row">
-                    <span class="label">한국어 / English 입력</span>
+                    <span class="label" id="inputLabel">한국어 / English 입력</span>
                     <span class="counter" id="counter">0 / 5,000</span>
                 </div>
 
@@ -332,14 +380,14 @@ button:disabled{opacity:.45;cursor:not-allowed}
 
                 <div class="result-actions">
                     <button class="copy" id="copyInput" type="button">
-                        입력 복사
+                        <span id="copyInputText">입력 복사</span>
                     </button>
                 </div>
             </section>
 
             <section class="output-box">
                 <div class="label-row">
-                    <span class="label">번역 결과</span>
+                    <span class="label" id="outputLabel">번역 결과</span>
                 </div>
 
                 <textarea
@@ -351,7 +399,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
 
                 <div class="result-actions">
                     <button class="copy" id="copy" type="button">
-                        결과 복사
+                        <span id="copyText">결과 복사</span>
                     </button>
                 </div>
 
@@ -360,7 +408,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
 
             <div class="controls">
                 <div class="hint">
-                    입력을 멈추면 자동 번역&nbsp;&nbsp;·&nbsp;&nbsp;Enter = 번역&nbsp;&nbsp;·&nbsp;&nbsp;Alt + Enter = 줄바꿈
+                    <span id="hintText">입력을 멈추면 자동 번역&nbsp;&nbsp;·&nbsp;&nbsp;Enter = 번역&nbsp;&nbsp;·&nbsp;&nbsp;Alt + Enter = 줄바꿈</span>
                 </div>
             </div>
 
@@ -369,7 +417,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
         <div class="tip">
             <span class="tip-dot"></span>
             <span class="tip-badge">TIP</span>
-            <span>한국어는 자연스러운 영어 구어체로, 영어는 편안한 해요체로 번역해요.</span>
+            <span id="tipText">한국어는 자연스러운 영어 구어체로, 영어는 편안한 해요체로 번역해요.</span>
         </div>
     </main>
 
@@ -384,6 +432,17 @@ const copyButton = document.getElementById("copy");
 const copyInput = document.getElementById("copyInput");
 const resetButton = document.getElementById("reset");
 const counter = document.getElementById("counter");
+const inputLabel = document.getElementById("inputLabel");
+const siteKoreanButton = document.getElementById("siteKorean");
+const siteEnglishButton = document.getElementById("siteEnglish");
+const siteTitle = document.getElementById("siteTitle");
+const siteSubtitle = document.getElementById("siteSubtitle");
+const siteNote = document.getElementById("siteNote");
+const outputLabel = document.getElementById("outputLabel");
+const copyInputText = document.getElementById("copyInputText");
+const copyTextLabel = document.getElementById("copyText");
+const hintText = document.getElementById("hintText");
+const tipText = document.getElementById("tipText");
 
 function updateCounter() {
     counter.textContent = input.value.length.toLocaleString() + " / 5,000";
@@ -395,6 +454,8 @@ let lastTranslatedText = "";
 let translationTimer = null;
 let translationController = null;
 let translationRequestId = 0;
+const AUTO_TRANSLATE_DELAY = 350;
+let siteLanguage = localStorage.getItem("translatorSiteLanguage") || "ko";
 
 function containsKorean(text) {
     return /[가-힣]/.test(text);
@@ -623,8 +684,8 @@ async function translate() {
     isTranslating = true;
     setStatus(
         chunks.length > 1
-            ? "긴 문장을 나눠서 자연스럽게 번역 중..."
-            : "친근한 구어체로 번역 중..."
+            ? UI_TEXT[siteLanguage].translatingLong
+            : UI_TEXT[siteLanguage].translating
     );
 
     try {
@@ -650,7 +711,7 @@ async function translate() {
 
             if (chunks.length > 1 && requestId === translationRequestId) {
                 setStatus(
-                    "번역 중... " +
+                    UI_TEXT[siteLanguage].translatingProgress +
                     Math.round(((i + 1) / chunks.length) * 100) +
                     "%"
                 );
@@ -692,7 +753,7 @@ async function translate() {
         if (requestId === translationRequestId) {
             output.value = "";
             setStatus(
-                "번역 중 문제가 생겼어요. 잠시 후 다시 시도해 주세요.",
+                UI_TEXT[siteLanguage].error,
                 true
             );
         }
@@ -710,6 +771,89 @@ async function translate() {
  *
  * IME(한글 입력기) 조합 중 Enter는 건드리지 않습니다.
  */
+const UI_TEXT = {
+    ko: {
+        title: '<span class="accent">한영</span> 번역창',
+        subtitle: '한국어 ↔ English · 자연스러운 구어체',
+        note: '자연스럽게 쓰고, 편하게 번역하세요.',
+        reset: '전체 초기화',
+        input: '한국어 / English 입력',
+        inputPlaceholder: '한국어나 영어를 편하게 입력해 주세요.',
+        output: '번역 결과',
+        outputPlaceholder: '번역 결과가 여기에 표시됩니다.',
+        copyInput: '입력 복사',
+        copyOutput: '결과 복사',
+        hint: '입력을 멈추면 자동 번역&nbsp;&nbsp;·&nbsp;&nbsp;Enter = 번역&nbsp;&nbsp;·&nbsp;&nbsp;Alt + Enter = 줄바꿈',
+        tip: '한국어는 자연스러운 영어 구어체로, 영어는 편안한 해요체로 번역해요.',
+        translating: '친근한 구어체로 번역 중...',
+        translatingLong: '긴 문장을 나눠서 자연스럽게 번역 중...',
+        translatingProgress: '번역 중... ',
+        complete: '자동 번역 완료',
+        completeLong: '긴 문장 자동 번역 완료',
+        copyInputDone: '입력한 내용을 복사했어요.',
+        copyInputEmpty: '복사할 입력 내용이 없어요.',
+        copyOutputDone: '번역 결과를 복사했어요.',
+        copyOutputEmpty: '복사할 번역 결과가 없어요.',
+        error: '번역 중 문제가 생겼어요. 잠시 후 다시 시도해 주세요.'
+    },
+    en: {
+        title: '<span class="accent">Korean-English</span> Translator',
+        subtitle: 'Korean ↔ English · Natural, conversational translation',
+        note: 'Write naturally, translate easily.',
+        reset: 'Clear all',
+        input: 'Korean / English input',
+        inputPlaceholder: 'Type in Korean or English naturally.',
+        output: 'Translation',
+        outputPlaceholder: 'Your translation will appear here.',
+        copyInput: 'Copy input',
+        copyOutput: 'Copy result',
+        hint: 'Auto-translate after you stop typing&nbsp;&nbsp;·&nbsp;&nbsp;Enter = Translate&nbsp;&nbsp;·&nbsp;&nbsp;Alt + Enter = New line',
+        tip: 'Korean is translated into natural conversational English, and English into friendly Korean.',
+        translating: 'Translating naturally...',
+        translatingLong: 'Translating the long text naturally in parts...',
+        translatingProgress: 'Translating... ',
+        complete: 'Translation complete',
+        completeLong: 'Long-text translation complete',
+        copyInputDone: 'Input copied.',
+        copyInputEmpty: 'There is no input to copy.',
+        copyOutputDone: 'Translation copied.',
+        copyOutputEmpty: 'There is no translation to copy.',
+        error: 'Something went wrong. Please try again in a moment.'
+    }
+};
+
+function applySiteLanguage(language) {
+    siteLanguage = language === "en" ? "en" : "ko";
+    localStorage.setItem("translatorSiteLanguage", siteLanguage);
+    const t = UI_TEXT[siteLanguage];
+
+    siteTitle.innerHTML = t.title;
+    siteSubtitle.textContent = t.subtitle;
+    siteNote.textContent = t.note;
+    resetButton.textContent = t.reset;
+    inputLabel.textContent = t.input;
+    input.placeholder = t.inputPlaceholder;
+    outputLabel.textContent = t.output;
+    output.placeholder = t.outputPlaceholder;
+    copyInputText.textContent = t.copyInput;
+    copyTextLabel.textContent = t.copyOutput;
+    hintText.innerHTML = t.hint;
+    tipText.textContent = t.tip;
+
+    siteKoreanButton.classList.toggle("active", siteLanguage === "ko");
+    siteEnglishButton.classList.toggle("active", siteLanguage === "en");
+    siteKoreanButton.setAttribute("aria-pressed", String(siteLanguage === "ko"));
+    siteEnglishButton.setAttribute("aria-pressed", String(siteLanguage === "en"));
+}
+
+siteKoreanButton.addEventListener("click", function() {
+    applySiteLanguage("ko");
+});
+
+siteEnglishButton.addEventListener("click", function() {
+    applySiteLanguage("en");
+});
+
 function resetAll() {
     // 진행 중인 번역 요청도 취소
     if (translationController) {
@@ -798,16 +942,16 @@ async function copyText(text, successMessage, emptyMessage) {
 copyButton.addEventListener("click", function() {
     copyText(
         output.value,
-        "번역 결과를 복사했어요.",
-        "복사할 번역 결과가 없어요."
+        UI_TEXT[siteLanguage].copyOutputDone,
+        UI_TEXT[siteLanguage].copyOutputEmpty
     );
 });
 
 copyInput.addEventListener("click", function() {
     copyText(
         input.value,
-        "입력한 내용을 복사했어요.",
-        "복사할 입력 내용이 없어요."
+        UI_TEXT[siteLanguage].copyInputDone,
+        UI_TEXT[siteLanguage].copyInputEmpty
     );
 });
 
@@ -828,12 +972,22 @@ input.addEventListener("input", function() {
         return;
     }
 
-    // 입력을 멈춘 뒤 700ms 후 자동 번역
+    // 입력이 바뀌면 진행 중인 이전 번역 요청도 즉시 취소해
+    // 오래된 결과가 새 입력에 섞이지 않도록 해요.
+    if (translationController) {
+        translationController.abort();
+        translationController = null;
+        translationRequestId++;
+        isTranslating = false;
+    }
+
+    // 입력을 멈춘 뒤 350ms 후 자동 번역
     translationTimer = setTimeout(function() {
         translationTimer = null;
         translate();
-    }, 700);
+    }, AUTO_TRANSLATE_DELAY);
 });
+applySiteLanguage(siteLanguage);
 updateCounter();
 </script>
 
