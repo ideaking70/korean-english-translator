@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>한영 번역창</title>
+<style>
+*{box-sizing:border-box}
+:root{
+  --bg:#f5f3f4;
+  --card:#ffffff;
+  --text:#20254a;
+  --muted:#6d7580;
+  --border:#dce3e8;
+  --primary:#252a5a;
+  --blue:#66879a;
+  --pink:#ff999e;
+  --light-pink:#fde3e4;
+  --soft-blue:#edf3f6;
+}
+html,body{margin:0;min-height:100%}
+body{
+  min-height:100vh;
+  font-family:"Pretendard",-apple-system,BlinkMacSystemFont,"Noto Sans KR","Malgun Gothic",sans-serif;
+  background:linear-gradient(145deg,#f4f2f3 0%,#f8f7f7 48%,#eef2f4 100%);
+  color:var(--text);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:34px 20px;
+  letter-spacing:-.01em;
+}
+.container{
+  width:min(980px,100%);
+  background:var(--card);
+  border:1px solid rgba(37,42,90,.08);
+  border-radius:24px;
+  overflow:hidden;
+  box-shadow:0 20px 55px rgba(37,42,90,.13),0 3px 10px rgba(37,42,90,.05);
+}
+.header{
+  position:relative;
+  padding:32px 34px 30px;
+  color:#fff;
+  background:var(--blue);
+  overflow:hidden;
+}
+.header:after{
+  content:"";
+  position:absolute;
+  right:-45px;
+  top:-70px;
+  width:190px;
+  height:190px;
+  border-radius:50%;
+  background:rgba(255,255,255,.07);
+}
+.header-top{
+  position:relative;
+  z-index:1;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+}
+.brand h1{
+  margin:0;
+  font-size:31px;
+  line-height:1.15;
+  font-weight:800;
+  letter-spacing:-.05em;
+}
+.brand h1 .accent{color:var(--pink)}
+.subtitle{
+  margin-top:8px;
+  color:rgba(255,255,255,.88);
+  font-size:14px;
+  font-weight:500;
+}
+.header-note{
+  margin-top:16px;
+  color:rgba(255,255,255,.78);
+  font-size:12px;
+  font-weight:500;
+}
+.reset-button{
+  position:relative;
+  z-index:2;
+  flex-shrink:0;
+  background:var(--pink);
+  color:#fff;
+  box-shadow:0 6px 14px rgba(37,42,90,.14);
+}
+.reset-button:hover{background:#ff858c}
+.main{padding:30px 34px 26px}
+.label-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin:0 0 9px;
+}
+.label{
+  font-size:13px;
+  font-weight:800;
+  color:var(--text);
+}
+.counter{
+  color:#8b929a;
+  font-size:12px;
+  font-weight:600;
+}
+textarea{
+  display:block;
+  width:100%;
+  min-height:205px;
+  height:205px;
+  overflow-y:auto;
+  resize:vertical;
+  border:1px solid var(--border);
+  border-radius:17px;
+  padding:18px 19px;
+  font-family:inherit;
+  font-size:17px;
+  font-weight:400;
+  line-height:1.72;
+  letter-spacing:-.015em;
+  color:var(--text);
+  background:#fff;
+  outline:none;
+  transition:border-color .18s ease,box-shadow .18s ease,background .18s ease;
+}
+textarea::placeholder{color:#adb4bb}
+textarea:focus{
+  border-color:var(--blue);
+  box-shadow:0 0 0 4px rgba(102,135,154,.13);
+}
+textarea[readonly]{
+  background:#f8fafb;
+  cursor:text;
+}
+.input-box textarea{
+  background:linear-gradient(180deg,#fff 0%,#fff 72%,#fffafb 100%);
+}
+.output-box textarea{
+  background:linear-gradient(180deg,#f9fbfc 0%,#fff 100%);
+}
+.controls{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin:13px 0 27px;
+}
+.hint{
+  color:#8a9198;
+  font-size:12px;
+  font-weight:500;
+  line-height:1.5;
+}
+.button-group{
+  display:flex;
+  gap:8px;
+  flex-shrink:0;
+}
+button{
+  border:0;
+  border-radius:11px;
+  min-height:41px;
+  padding:0 17px;
+  font-family:inherit;
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:-.01em;
+  cursor:pointer;
+  transition:background .16s ease,transform .08s ease,opacity .16s ease,box-shadow .16s ease;
+}
+button:active{transform:translateY(1px)}
+button:disabled{opacity:.45;cursor:not-allowed}
+#translate{
+  background:var(--primary);
+  color:#fff;
+  box-shadow:0 7px 16px rgba(37,42,90,.16);
+}
+#translate:hover{
+  background:#1e234e;
+  box-shadow:0 9px 20px rgba(37,42,90,.2);
+}
+.reset-button:hover{box-shadow:0 8px 18px rgba(37,42,90,.16)}
+.copy{
+  background:var(--soft-blue);
+  color:var(--text);
+}
+.copy:hover{background:#e2edf2}
+.result-actions{
+  display:flex;
+  justify-content:flex-end;
+  margin-top:10px;
+}
+.copy{
+  min-height:36px;
+  padding:0 14px;
+  font-size:12px;
+}
+.status{
+  min-height:19px;
+  margin-top:9px;
+  padding-left:2px;
+  color:#9299a1;
+  font-size:12px;
+  font-weight:500;
+}
+.error{color:#b42318}
+.tip{
+  margin-top:24px;
+  padding:13px 16px;
+  border-radius:14px;
+  background:var(--light-pink);
+  color:var(--text);
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:12px;
+  font-weight:600;
+}
+.tip-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:38px;
+  height:25px;
+  padding:0 8px;
+  border-radius:999px;
+  background:var(--pink);
+  color:#fff;
+  font-size:11px;
+  font-weight:800;
+}
+.tip-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--blue);
+  flex-shrink:0;
+}
+@media(min-width:760px){
+  .translation-grid{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:22px;
+    align-items:start;
+  }
+  .controls{
+    grid-column:1 / -1;
+    margin-top:-4px;
+    margin-bottom:0;
+  }
+}
+@media(max-width:759px){
+  .main{padding:25px 20px 22px}
+  .translation-grid{display:block}
+  .output-box{margin-top:24px}
+}
+@media(max-width:700px){
+  body{padding:14px;align-items:flex-start}
+  .container{width:100%;margin-top:8px;border-radius:19px}
+  .header{padding:25px 20px 23px}
+  .brand h1{font-size:25px}
+  .subtitle{font-size:12px}
+  .header-note{font-size:11px}
+  .main{padding:22px 18px 19px}
+  textarea{min-height:160px;font-size:16px;padding:15px}
+  .controls{
+    align-items:stretch;
+    flex-direction:column;
+    margin-bottom:0;
+  }
+  .hint{text-align:center;order:2}
+  .button-group{width:100%;order:1}
+  .button-group button{flex:1;width:50%}
+  .result-actions{justify-content:stretch}
+  .copy{width:100%}
+  .tip{align-items:flex-start;flex-wrap:wrap}
+}
+@media(max-width:430px){
+  body{padding:8px}
+  .header{padding:21px 16px}
+  .main{padding:19px 14px 17px}
+  .header-top{gap:10px}
+  .brand h1{font-size:22px}
+  .subtitle{font-size:11px}
+  .reset-button{min-height:37px;padding:0 12px;font-size:12px}
+  textarea{min-height:145px}
+  .button-group{gap:6px}
+  button{padding:0 12px}
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+    <header class="header">
+        <div class="header-top">
+            <div class="brand">
+                <h1><span class="accent">한영</span> 번역창</h1>
+                <div class="subtitle">한국어 ↔ English · 자연스러운 구어체</div>
+                <div class="header-note">Write naturally, translate easily.</div>
+            </div>
+
+            <button id="reset" type="button" class="reset-button">
+                전체 초기화
+            </button>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="translation-grid">
+
+            <section class="input-box">
+                <div class="label-row">
+                    <span class="label">한국어 / English 입력</span>
+                    <span class="counter" id="counter">0 / 5,000</span>
+                </div>
+
+                <textarea
+                    id="input"
+                    placeholder="한국어나 영어를 편하게 입력해 주세요."
+                    spellcheck="false"
+                    autocomplete="off"
+                    maxlength="5000"
+                ></textarea>
+
+                <div class="result-actions">
+                    <button class="copy" id="copyInput" type="button">
+                        입력 복사
+                    </button>
+                </div>
+            </section>
+
+            <section class="output-box">
+                <div class="label-row">
+                    <span class="label">번역 결과</span>
+                </div>
+
+                <textarea
+                    id="output"
+                    readonly
+                    placeholder="번역 결과가 여기에 표시됩니다."
+                    spellcheck="false"
+                ></textarea>
+
+                <div class="result-actions">
+                    <button class="copy" id="copy" type="button">
+                        결과 복사
+                    </button>
+                </div>
+
+                <div class="status" id="status" aria-live="polite"></div>
+            </section>
+
+            <div class="controls">
+                <div class="hint">
+                    입력을 멈추면 자동 번역&nbsp;&nbsp;·&nbsp;&nbsp;Enter = 번역&nbsp;&nbsp;·&nbsp;&nbsp;Alt + Enter = 줄바꿈
+                </div>
+            </div>
+
+        </div>
+
+        <div class="tip">
+            <span class="tip-dot"></span>
+            <span class="tip-badge">TIP</span>
+            <span>한국어는 자연스러운 영어 구어체로, 영어는 편안한 해요체로 번역해요.</span>
+        </div>
+    </main>
+
+</div>
+<script>
+"use strict";
+
+const input = document.getElementById("input");
+const output = document.getElementById("output");
+const status = document.getElementById("status");
+const copyButton = document.getElementById("copy");
+const copyInput = document.getElementById("copyInput");
+const resetButton = document.getElementById("reset");
+const counter = document.getElementById("counter");
+
+function updateCounter() {
+    counter.textContent = input.value.length.toLocaleString() + " / 5,000";
+}
+
+
+let isTranslating = false;
+let lastTranslatedText = "";
+let translationTimer = null;
+let translationController = null;
+let translationRequestId = 0;
+
+function containsKorean(text) {
+    return /[가-힣]/.test(text);
+}
+
+
+function decodeHtmlEntities(text) {
+    const el = document.createElement("textarea");
+    let decoded = String(text);
+
+    // 번역 API가 &amp;nbsp;처럼 HTML 엔티티를 여러 겹으로
+    // 이스케이프해서 보내는 경우를 최대 3번까지 정상적인 문자로 복원해요.
+    for (let i = 0; i < 3; i++) {
+        el.innerHTML = decoded;
+        const next = el.value;
+        if (next === decoded) break;
+        decoded = next;
+    }
+
+    return decoded
+        .replace(/\u00A0/g, " ")
+        .replace(/[ \t]+\n/g, "\n")
+        .trim();
+}
+
+function makeConversationalEnglish(text) {
+    return text
+        .replace(/\bI am\b/g, "I'm")
+        .replace(/\bI will\b/g, "I'll")
+        .replace(/\bI have\b/g, "I've")
+        .replace(/\bI would\b/g, "I'd")
+        .replace(/\bI cannot\b/g, "I can't")
+        .replace(/\bcannot\b/gi, "can't")
+        .replace(/\bdo not\b/gi, "don't")
+        .replace(/\bdoes not\b/gi, "doesn't")
+        .replace(/\bdid not\b/gi, "didn't")
+        .replace(/\bwill not\b/gi, "won't")
+        .replace(/\bwould not\b/gi, "wouldn't")
+        .replace(/\bshould not\b/gi, "shouldn't")
+        .replace(/\bit is\b/gi, "it's")
+        .replace(/\bthat is\b/gi, "that's");
+}
+
+function makeConversationalKorean(text) {
+    return text
+        // 먼저 특정 표현을 바꾼 뒤, 일반적인 합쇼체를 해요체로 바꿔요.
+        .replace(/하셨습니다/g, "하셨어요")
+        .replace(/하였습니다/g, "했어요")
+        .replace(/부탁드립니다/g, "부탁드릴게요")
+        .replace(/감사합니다/g, "고마워요")
+        .replace(/죄송합니다/g, "미안해요")
+        .replace(/알겠습니다/g, "알겠어요")
+        .replace(/모르겠습니다/g, "모르겠어요")
+        .replace(/하십니다/g, "하세요")
+        .replace(/하십시오/g, "하세요")
+        .replace(/합니다/g, "해요")
+        .replace(/했습니다/g, "했어요")
+        .replace(/됩니다/g, "돼요")
+        .replace(/됐습니다/g, "됐어요")
+        .replace(/되었습니다/g, "됐어요")
+        .replace(/있습니다/g, "있어요")
+        .replace(/없습니다/g, "없어요")
+        .replace(/아닙니다/g, "아니에요")
+        .replace(/가능합니다/g, "가능해요")
+        .replace(/필요합니다/g, "필요해요")
+        .replace(/바랍니다/g, "바랄게요")
+        .replace(/하시겠습니까\?/g, "하실래요?")
+        .replace(/습니까\?/g, "어요?");
+}
+
+
+function setStatus(message, isError = false) {
+    status.textContent = message;
+    status.classList.toggle("error", isError);
+}
+
+function splitTextForTranslation(text, maxChars = 450) {
+    if (text.length <= maxChars) {
+        return [text];
+    }
+
+    const chunks = [];
+    let remaining = text;
+
+    while (remaining.length > maxChars) {
+        const candidate = remaining.slice(0, maxChars);
+
+        // 문단/문장 끝을 우선적으로 찾아 자연스럽게 나눠요.
+        const breakPatterns = [
+            /\n+/g,
+            /[.!?。！？]\s*/g,
+            /[,，;；:：]\s*/g,
+            /\s+/g
+        ];
+
+        let cut = -1;
+
+        for (const pattern of breakPatterns) {
+            let match;
+            while ((match = pattern.exec(candidate)) !== null) {
+                cut = match.index + match[0].length;
+            }
+            if (cut > maxChars * 0.55) {
+                break;
+            }
+        }
+
+        if (cut <= 0 || cut > maxChars) {
+            cut = maxChars;
+        }
+
+        const chunk = remaining.slice(0, cut).trim();
+        if (chunk) {
+            chunks.push(chunk);
+        }
+
+        remaining = remaining.slice(cut).trimStart();
+    }
+
+    if (remaining.trim()) {
+        chunks.push(remaining.trim());
+    }
+
+    return chunks;
+}
+
+async function translateChunk(text, source, target, signal) {
+    let result = "";
+
+    // 1차: MyMemory
+    try {
+        const url =
+            "https://api.mymemory.translated.net/get?q=" +
+            encodeURIComponent(text) +
+            "&langpair=" + source + "|" + target;
+
+        const response = await fetch(url, {
+            method: "GET",
+            headers: { "Accept": "application/json" },
+            signal
+        });
+
+        if (!response.ok) {
+            throw new Error("MyMemory HTTP " + response.status);
+        }
+
+        const data = await response.json();
+        result = data?.responseData?.translatedText || "";
+
+        // API가 제한 초과/실패 메시지를 번역 결과처럼 돌려주는 경우도 차단
+        if (/QUERY LENGTH LIMIT|MAX ALLOWED QUERY|INVALID QUERY/i.test(result)) {
+            result = "";
+        }
+    } catch (error) {
+        if (error?.name === "AbortError") {
+            throw error;
+        }
+        result = "";
+    }
+
+    // 2차: Google Translate 공개 엔드포인트
+    if (!result) {
+        const googleUrl =
+            "https://translate.googleapis.com/translate_a/single" +
+            "?client=gtx" +
+            "&sl=" + encodeURIComponent(source) +
+            "&tl=" + encodeURIComponent(target) +
+            "&dt=t" +
+            "&q=" + encodeURIComponent(text);
+
+        const response = await fetch(googleUrl, { signal });
+
+        if (!response.ok) {
+            throw new Error("대체 번역 서버에 연결하지 못했습니다.");
+        }
+
+        const data = await response.json();
+
+        if (!Array.isArray(data) || !Array.isArray(data[0])) {
+            throw new Error("번역 결과 형식이 올바르지 않습니다.");
+        }
+
+        result = data[0]
+            .filter(part => Array.isArray(part) && typeof part[0] === "string")
+            .map(part => part[0])
+            .join("");
+    }
+
+    if (!result.trim()) {
+        throw new Error("번역 결과가 없습니다.");
+    }
+
+    return result;
+}
+
+async function translate() {
+    const text = input.value.trim();
+
+    if (!text) {
+        output.value = "";
+        setStatus("");
+        return;
+    }
+
+    if (text === lastTranslatedText && !isTranslating) {
+        return;
+    }
+
+    if (translationController) {
+        translationController.abort();
+    }
+
+    translationController = new AbortController();
+    const controller = translationController;
+    const requestId = ++translationRequestId;
+
+    if (translationTimer) {
+        clearTimeout(translationTimer);
+        translationTimer = null;
+    }
+
+    const source = containsKorean(text) ? "ko" : "en";
+    const target = source === "ko" ? "en" : "ko";
+    const chunks = splitTextForTranslation(text, 450);
+
+    isTranslating = true;
+    setStatus(
+        chunks.length > 1
+            ? "긴 문장을 나눠서 자연스럽게 번역 중..."
+            : "친근한 구어체로 번역 중..."
+    );
+
+    try {
+        const translatedChunks = [];
+
+        for (let i = 0; i < chunks.length; i++) {
+            // 사용자가 새 문장을 입력했으면 이전 번역은 즉시 중단
+            if (
+                requestId !== translationRequestId ||
+                input.value.trim() !== text
+            ) {
+                return;
+            }
+
+            const translated = await translateChunk(
+                chunks[i],
+                source,
+                target,
+                controller.signal
+            );
+
+            translatedChunks.push(translated);
+
+            if (chunks.length > 1 && requestId === translationRequestId) {
+                setStatus(
+                    "번역 중... " +
+                    Math.round(((i + 1) / chunks.length) * 100) +
+                    "%"
+                );
+            }
+        }
+
+        if (
+            requestId !== translationRequestId ||
+            input.value.trim() !== text
+        ) {
+            return;
+        }
+
+        // 분할 번역 결과를 원문의 문단 구조에 맞춰 연결
+        let result = translatedChunks.join("\n");
+
+        result = decodeHtmlEntities(result);
+
+        if (source === "ko") {
+            result = makeConversationalEnglish(result);
+        } else {
+            result = makeConversationalKorean(result);
+        }
+
+        result = decodeHtmlEntities(result);
+
+        output.value = result;
+        lastTranslatedText = text;
+        setStatus(
+            chunks.length > 1
+                ? "긴 문장 자동 번역 완료"
+                : "자동 번역 완료"
+        );
+    } catch (error) {
+        if (error?.name === "AbortError") {
+            return;
+        }
+
+        if (requestId === translationRequestId) {
+            output.value = "";
+            setStatus(
+                "번역 중 문제가 생겼어요. 잠시 후 다시 시도해 주세요.",
+                true
+            );
+        }
+    } finally {
+        if (requestId === translationRequestId) {
+            isTranslating = false;
+            translationController = null;
+        }
+    }
+}
+
+/*
+ * Enter = 번역
+ * Alt + Enter = 줄바꿈
+ *
+ * IME(한글 입력기) 조합 중 Enter는 건드리지 않습니다.
+ */
+function resetAll() {
+    // 진행 중인 번역 요청도 취소
+    if (translationController) {
+        translationController.abort();
+        translationController = null;
+    }
+    translationRequestId++;
+    isTranslating = false;
+
+    // 예약된 자동 번역 취소
+    if (translationTimer) {
+        clearTimeout(translationTimer);
+        translationTimer = null;
+    }
+
+    // 입력/결과 모두 초기화
+    input.value = "";
+    updateCounter();
+    output.value = "";
+
+    // 상태 및 번역 상태 초기화
+    lastTranslatedText = "";
+    setStatus("");
+
+    // 입력창에 다시 커서
+    input.focus();
+}
+
+resetButton.addEventListener("click", resetAll);
+
+input.addEventListener("keydown", function(event) {
+    if (event.isComposing) {
+        return;
+    }
+
+    if (event.key === "Enter" && event.altKey) {
+        event.preventDefault();
+
+        const start = input.selectionStart;
+        const end = input.selectionEnd;
+
+        input.setRangeText(
+            "\n",
+            start,
+            end,
+            "end"
+        );
+
+        return;
+    }
+
+    if (
+        event.key === "Enter" &&
+        !event.altKey &&
+        !event.shiftKey &&
+        !event.ctrlKey &&
+        !event.metaKey
+    ) {
+        event.preventDefault();
+        clearTimeout(translationTimer);
+        translationTimer = null;
+        translate();
+    }
+});
+
+async function copyText(text, successMessage, emptyMessage) {
+    if (!text.trim()) {
+        setStatus(emptyMessage, true);
+        return;
+    }
+
+    try {
+        await navigator.clipboard.writeText(text);
+        setStatus(successMessage);
+    } catch (error) {
+        const temp = document.createElement("textarea");
+        temp.value = text;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand("copy");
+        temp.remove();
+        setStatus(successMessage);
+    }
+}
+
+copyButton.addEventListener("click", function() {
+    copyText(
+        output.value,
+        "번역 결과를 복사했어요.",
+        "복사할 번역 결과가 없어요."
+    );
+});
+
+copyInput.addEventListener("click", function() {
+    copyText(
+        input.value,
+        "입력한 내용을 복사했어요.",
+        "복사할 입력 내용이 없어요."
+    );
+});
+
+input.addEventListener("input", function() {
+    updateCounter();
+
+    clearTimeout(translationTimer);
+    translationTimer = null;
+
+    // 입력이 바뀌었으므로 이전 문장을 새 번역 대상으로 취급합니다.
+    lastTranslatedText = "";
+
+    const text = input.value.trim();
+
+    if (!text) {
+        output.value = "";
+        setStatus("");
+        return;
+    }
+
+    // 입력을 멈춘 뒤 700ms 후 자동 번역
+    translationTimer = setTimeout(function() {
+        translationTimer = null;
+        translate();
+    }, 700);
+});
+updateCounter();
+</script>
+
+</body>
+</html>
